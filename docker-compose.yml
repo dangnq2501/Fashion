@@ -1,0 +1,74 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-latest:3306/test?enabledTLSProtocols=TLSv1.2
+      - SPRING_DATASOURCE_USERNAME=sample
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
+      - SPRING_SQL_INIT_MODE=always
+    networks:
+      - backend-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+  fastapi:
+    container_name: fastapi
+    build:
+      context: .
+      dockerfile: dockerized-recommend-system/Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - backend-network
+  frontend:
+    build:
+      context: ./LongVu-Fashion-FE
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://app:8080
+      - REPLICATE_API_TOKEN=r8_J961FmzaWiL3x73Mb2zFPx5rarOrngI4cxztu
+    networks:
+      - backend-network
+    depends_on:
+      - app
+    command: npm run dev
+    volumes:
+      - ./LongVu-Fashion-FE:/app
+      - /app/node_modules
+  mysql:
+    image: mysql:latest
+    container_name: mysql-latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_USER: 'sample'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3303:3306'
+    expose:
+      - '3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+    volumes:
+      - mysql-db:/var/lib/mysql
+    networks:
+      - backend-network
+volumes:
+  mysql-db:
+networks:
+  backend-network:
+    driver: bridge

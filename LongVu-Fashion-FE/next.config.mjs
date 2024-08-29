@@ -1,0 +1,33 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: '/api/virtual-tryon',
+        destination: '/api/virtual-tryon', // Handle locally in Next.js
+      },
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/:path*`, // Proxy to Backend
+      },
+    ];
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'replicate.delivery',
+        port: '',
+        pathname: '/**', // Allow any path under the domain
+      },
+    ],
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
+export default nextConfig;
