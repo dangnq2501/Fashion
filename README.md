@@ -7,7 +7,7 @@
 
 LongVu FASHION is an e-commerce project focused on selling fashion products. This project utilizes Java Spring for the backend, Next.js with TailwindCSS for the frontend, and FastAPI for the AI recommendation engine.
 
-##Team member
+## Team member
 - Đỗ Minh Nhật - 22022537
 - Nguyễn Quý Đang - 22022500
 - Vũ Vân Long - 22022501
